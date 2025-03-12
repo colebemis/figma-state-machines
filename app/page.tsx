@@ -10,8 +10,6 @@ async function initVariableCollection({
 }) {
   return await figmaAPI.run(
     async (figma, { collectionName }) => {
-      console.log("initVariableCollection");
-
       const variableCollectionId = figma.root.getPluginData(
         "variable_collection_id"
       );
@@ -31,8 +29,6 @@ async function initVariableCollection({
           // The variable collection does not exist
         }
       }
-
-      console.log("createVariableCollection");
 
       const newVariableCollection =
         figma.variables.createVariableCollection(collectionName);
@@ -93,8 +89,6 @@ export default function Plugin() {
         collectionName: "State machine",
       });
 
-      console.log(variableCollectionId);
-
       const countVariableId = await initVariable({
         variableName: "count",
         variableCollectionId,
@@ -135,18 +129,10 @@ export default function Plugin() {
     );
   }, []);
 
-  const increment = React.useCallback(() => {
-    add(1);
-  }, [add]);
-
-  const decrement = React.useCallback(() => {
-    add(-1);
-  }, [add]);
-
   return (
     <div>
-      <button onClick={increment}>Increment</button>
-      <button onClick={decrement}>Decrement</button>
+      <button onClick={() => add(1)}>Increment</button>
+      <button onClick={() => add(-1)}>Decrement</button>
     </div>
   );
 }
