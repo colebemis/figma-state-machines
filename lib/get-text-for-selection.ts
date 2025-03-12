@@ -1,4 +1,4 @@
-import { figmaAPI } from "@/lib/figmaAPI";
+import { figmaAPI } from "@/lib/figma-api";
 
 export async function getTextForSelection() {
   return await figmaAPI.run((figma) => {
