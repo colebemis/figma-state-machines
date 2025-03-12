@@ -1,6 +1,6 @@
 {
-  "name": "ai-plugin-template",
-  "id": "ai-plugin-template",
+  "name": "State machines",
+  "id": "figma-state-machines",
   "api": "1.0.0",
   "main": "dist/code.js",
   "enableProposedApi": false,
