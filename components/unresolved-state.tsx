@@ -32,7 +32,7 @@ export function UnresolvedState({
       className="px-2 h-9 hover:bg-bg-secondary rounded text-left flex items-center gap-2 text-text-secondary relative after:absolute after:inset-0 after:border after:border-border after:border-dashed after:rounded after:pointer-events-none font-bold"
       onClick={() => setIsEditing(true)}
     >
-      <Diamond size={16} />
+      <Diamond />
       {stateName}
     </button>
   );

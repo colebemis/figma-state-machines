@@ -77,11 +77,11 @@ export function State({
     >
       <div className="px-2 h-9  flex items-center gap-2 rounded">
         {unreachable ? (
-          <WarningDiamond size={16} className="text-text-warning" />
+          <WarningDiamond className="text-text-warning" />
         ) : (
           <div className="flex relative">
-            {initial ? <DotOutline size={16} className="absolute" /> : null}
-            <Diamond size={16} />
+            {initial ? <DotOutline className="absolute" /> : null}
+            <Diamond />
           </div>
         )}
         <span className="font-bold">{stateName}</span>
@@ -93,10 +93,10 @@ export function State({
             aria-label="Edit state"
             onClick={() => setIsEditing(true)}
           >
-            <CursorText size={16} />
+            <CursorText />
           </IconButton>
           <IconButton aria-label="Remove state" onClick={onRemove}>
-            <Minus size={16} />
+            <Minus />
           </IconButton>
         </div>
       </div>
@@ -135,10 +135,10 @@ export function State({
                     {event}
                   </button>
                   {parseEventValue(value).target === stateName ? (
-                    <ArrowUDownLeft size={16} />
+                    <ArrowUDownLeft />
                   ) : (
                     <>
-                      <ArrowRight size={16} />
+                      <ArrowRight />
                       <span className="italic">
                         {parseEventValue(value).target}
                       </span>
@@ -148,7 +148,7 @@ export function State({
                 <div className="flex flex-col pl-2 empty:hidden">
                   {parseEventValue(value).actions.map((action) => (
                     <span key={action} className="flex items-center gap-1 h-6">
-                      <Function size={16} />
+                      <Function />
                       {action}
                     </span>
                   ))}

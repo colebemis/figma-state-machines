@@ -83,14 +83,11 @@ export function StateEditor({
       <div className="border-b border-border">
         <div className="flex relative h-9">
           {unreachable ? (
-            <WarningDiamond
-              size={16}
-              className="text-text-warning absolute left-2 top-2.5"
-            />
+            <WarningDiamond className="text-text-warning absolute left-2 top-2.5" />
           ) : (
             <div className="flex relative left-2 top-2.5 size-4">
-              {initial ? <DotOutline size={16} className="absolute" /> : null}
-              <Diamond size={16} />
+              {initial ? <DotOutline className="absolute" /> : null}
+              <Diamond />
             </div>
           )}
           <input
@@ -105,14 +102,14 @@ export function StateEditor({
 
           <div className="absolute top-1.5 right-1.5 flex items-center gap-1 ">
             <IconButton aria-label="Save changes" type="submit">
-              <Check size={16} />
+              <Check />
             </IconButton>
             <IconButton
               aria-label="Cancel changes"
               type="button"
               onClick={onCancel}
             >
-              <X size={16} />
+              <X />
             </IconButton>
           </div>
         </div>
@@ -155,7 +152,7 @@ export function StateEditor({
       </div>
       {error ? (
         <div className="p-2 text-text-danger flex items-start gap-2">
-          <Warning size={16} className="flex-shrink-0" />
+          <Warning className="flex-shrink-0" />
           <div className="whitespace-pre-wrap  font-mono">{error}</div>
         </div>
       ) : null}
