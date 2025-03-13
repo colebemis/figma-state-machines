@@ -7,10 +7,11 @@
 
   --color-text: #000000e5;
   --color-text-secondary: #00000080;
+  --color-text-danger: #dc3412;
   --color-text-onbrand: #fff;
 
   --color-bg: #fff;
-  --color-bg-secondary: #f5f5f5;
+  --color-bg-secondary: #0000000d;
   --color-bg-menu: #1e1e1e;
   --color-bg-selected: #e5f4ff;
   --color-bg-brand: #0d99ff;
@@ -18,6 +19,7 @@
 
   --color-border: #e6e6e6;
   --color-border-selected: #0d99ff;
+  --color-border-selected-strong: #007be5;
 
   --radius-base: 5px;
   --radius-lg: 13px;
@@ -32,16 +34,18 @@
   :root {
     --color-text: #fff;
     --color-text-secondary: #ffffffb2;
+    --color-text-danger: #fca397;
     --color-text-onbrand: #fff;
 
     --color-bg: #2c2c2c;
-    --color-bg-secondary: #383838;
+    --color-bg-secondary: #ffffff0d;
     --color-bg-selected: #4a5878;
     --color-bg-brand: #0c8ce9;
     --color-bg-brand-pressed: #0a6dc2;
 
     --color-border: #444;
     --color-border-selected: #0c8ce9;
+    --color-border-selected-strong: #7cc4f8;
   }
 }
 
@@ -55,6 +59,31 @@ button {
   cursor: default;
 }
 
-button:disabled {
-  cursor: not-allowed;
+/* Auto-growing textarea wrapper */
+/* Copied from https://css-tricks.com/the-cleanest-trick-for-autogrowing-textareas/ */
+.grow-wrap {
+  display: grid;
+  overflow: auto;
+}
+
+.grow-wrap::after {
+  content: attr(data-replicated-value) " ";
+  white-space: pre-wrap;
+  visibility: hidden;
+}
+
+.grow-wrap > textarea {
+  resize: none;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.grow-wrap > textarea::-webkit-scrollbar {
+  display: none;
+}
+
+.grow-wrap > textarea,
+.grow-wrap::after {
+  padding: var(--padding);
+  font: inherit;
+  grid-area: 1 / 1 / 2 / 2;
 }

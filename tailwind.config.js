@@ -23,6 +23,7 @@ module.exports = {
       text: {
         DEFAULT: "var(--color-text)",
         secondary: "var(--color-text-secondary)",
+        danger: "var(--color-text-danger)",
         onbrand: "var(--color-text-onbrand)",
       },
       bg: {
@@ -37,7 +38,10 @@ module.exports = {
       },
       border: {
         DEFAULT: "var(--color-border)",
-        selected: "var(--color-border-selected)",
+        selected: {
+          DEFAULT: "var(--color-border-selected)",
+          strong: "var(--color-border-selected-strong)",
+        },
       },
     },
     fontSize: {
