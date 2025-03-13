@@ -23,7 +23,7 @@ export function useRootPluginData<T>({
       );
 
       if (!storedValue) {
-        return defaultValue;
+        return;
       }
 
       const parsedValue = schema.safeParse(JSON.parse(storedValue));
