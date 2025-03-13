@@ -91,11 +91,11 @@ export default function Plugin() {
     schema: FigmaNodeBindingsSchema,
     defaultValue: [],
   });
-  const [currentState, setCurrentState] = useVariable(
-    "currentState",
-    "STRING",
-    stateMachine.initial
-  );
+  const [currentState, setCurrentState] = useRootPluginData({
+    key: "currentState",
+    schema: z.string(),
+    defaultValue: stateMachine.initial,
+  });
   const [isUISectionExpanded, setIsUISectionExpanded] = useRootPluginData({
     key: "isUISectionExpanded",
     schema: z.boolean(),
