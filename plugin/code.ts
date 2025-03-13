@@ -5,6 +5,27 @@ figma.showUI(`<script>window.location.href = '${SITE_URL}'</script>`, {
   height: 700,
 });
 
+// Listen for node selection changes
+figma.on("selectionchange", () => {
+  const selection = figma.currentPage.selection;
+  if (selection.length === 1) {
+    const node = selection[0];
+    figma.ui.postMessage({
+      type: "SELECTED_NODE",
+      node: {
+        id: node.id,
+        name: node.name,
+        type: node.type,
+      },
+    });
+  } else {
+    figma.ui.postMessage({
+      type: "SELECTED_NODE",
+      node: null,
+    });
+  }
+});
+
 figma.ui.onmessage = async (message, props) => {
   if (props.origin !== SITE_URL) {
     return;

@@ -22,3 +22,23 @@ export const StateMachineSchema = z.object({
 });
 
 export type StateMachine = z.infer<typeof StateMachineSchema>;
+
+export const FigmaNodeSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  type: z.string(),
+});
+
+export type FigmaNode = z.infer<typeof FigmaNodeSchema>;
+
+export const FigmaNodeBindingSchema = z.object({
+  node: FigmaNodeSchema,
+  bindings: z.array(
+    z.object({
+      property: z.enum(["visibility"]),
+      expression: z.string(),
+    })
+  ),
+});
+
+export type FigmaNodeBinding = z.infer<typeof FigmaNodeBindingSchema>;

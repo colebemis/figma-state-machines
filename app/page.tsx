@@ -5,21 +5,33 @@ import { State } from "@/components/state";
 import { StateEditor } from "@/components/state-editor";
 import { UnresolvedState } from "@/components/unresolved-state";
 import { parseEventValue } from "@/lib/parse-event-value";
-import { StateMachine, StateMachineSchema, StateValue } from "@/lib/types";
+import {
+  FigmaNode,
+  FigmaNodeBinding,
+  StateMachine,
+  StateMachineSchema,
+  StateValue,
+} from "@/lib/types";
 import { useRootPluginData } from "@/lib/use-plugin-data";
 import { useVariable } from "@/lib/use-variable";
 import {
   ArrowUUpLeft,
+  BezierCurve,
   CaretDown,
+  Circle,
   Eye,
   IconContext,
+  LineSegment,
   Minus,
   Plus,
+  Rectangle,
   Square,
+  TextT,
 } from "@phosphor-icons/react";
 import React from "react";
 import * as Tabs from "@radix-ui/react-tabs";
 import { Select } from "@/components/select";
+import clsx from "clsx";
 
 const DEMO_STATE_MACHINE: StateMachine = {
   initial: "empty",
@@ -82,6 +94,18 @@ export default function Plugin() {
   );
   const [hoverState, setHoverState] = React.useState<string | null>(null);
   const [isAddingNewState, setIsAddingNewState] = React.useState(false);
+  const [selectedNode, setSelectedNode] = React.useState<FigmaNode | null>(
+    null
+  );
+
+  React.useEffect(() => {
+    window.onmessage = (event) => {
+      const message = event.data.pluginMessage;
+      if (message.type === "SELECTED_NODE") {
+        setSelectedNode(message.node);
+      }
+    };
+  }, []);
 
   // Calculate unreachable states
   const unreachableStates = React.useMemo(() => {
@@ -350,7 +374,10 @@ export default function Plugin() {
         </Tabs.Content>
         <Tabs.Content value="ui">
           <div className="p-2">
-            <UIBindings currentState={currentState} />
+            <UIBindings
+              currentState={currentState}
+              selectedNode={selectedNode}
+            />
           </div>
         </Tabs.Content>
       </Tabs.Root>
@@ -358,20 +385,22 @@ export default function Plugin() {
   );
 }
 
-type NodeBinding = {
-  nodeId: string;
-  nodeName: string;
-  bindings: Array<{
-    property: "visibility";
-    expression: string;
-  }>;
-};
-
-function UIBindings({ currentState }: { currentState: string }) {
-  const [nodeBindings, setNodeBindings] = React.useState<Array<NodeBinding>>([
+function UIBindings({
+  currentState,
+  selectedNode,
+}: {
+  currentState: string;
+  selectedNode: FigmaNode | null;
+}) {
+  const [nodeBindings, setNodeBindings] = React.useState<
+    Array<FigmaNodeBinding>
+  >([
     {
-      nodeId: "1",
-      nodeName: "Frame",
+      node: {
+        id: "1",
+        name: "Frame",
+        type: "FRAME",
+      },
       bindings: [
         {
           property: "visibility",
@@ -382,23 +411,30 @@ function UIBindings({ currentState }: { currentState: string }) {
   ]);
 
   return (
-    <div>
-      {nodeBindings.map((nodeBinding) => (
-        <div key={nodeBinding.nodeId} className="flex flex-col gap-2">
+    <div className="flex flex-col gap-4">
+      {nodeBindings.map(({ node, bindings }) => (
+        <div key={node.id} className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-2 h-6 px-2 hover:bg-bg-secondary rounded flex-grow">
-              <Square />
-              <span className="font-bold">{nodeBinding.nodeName}</span>
+            <button
+              className={clsx(
+                "flex items-center gap-2 h-6 px-2 rounded flex-grow",
+                node.id === selectedNode?.id
+                  ? "bg-bg-selected"
+                  : "hover:bg-bg-secondary"
+              )}
+            >
+              <NodeIcon type={node.type} />
+              <span className="font-bold">{node.name}</span>
             </button>
             <IconButton aria-label="Add binding">
               <Plus />
             </IconButton>
           </div>
           <div className="flex flex-col gap-2 pl-8">
-            {nodeBinding.bindings.map((binding) => (
+            {bindings.map((binding) => (
               <div
                 key={binding.property}
-                className=" items-center gap-2 grid grid-cols-[100px_1fr_auto]"
+                className="items-start gap-2 grid grid-cols-[100px_1fr_auto]"
               >
                 <Select value={binding.property} onChange={() => {}}>
                   <option value="visibility">Visibility</option>
@@ -415,8 +451,42 @@ function UIBindings({ currentState }: { currentState: string }) {
           </div>
         </div>
       ))}
+      {selectedNode &&
+      !nodeBindings.find((b) => b.node.id === selectedNode.id) ? (
+        <div className="flex items-center gap-2">
+          <button className="flex items-center gap-2 h-6 px-2 rounded flex-grow bg-bg-selected">
+            <NodeIcon type={selectedNode.type} />
+            <span className="font-bold italic">{selectedNode.name}</span>
+          </button>
+          <IconButton aria-label="Add binding">
+            <Plus />
+          </IconButton>
+        </div>
+      ) : null}
     </div>
   );
+}
+
+function NodeIcon({ type }: { type: string }) {
+  switch (type) {
+    case "TEXT":
+      return <TextT />;
+
+    case "ELLIPSE":
+      return <Circle />;
+
+    case "RECTANGLE":
+      return <Rectangle />;
+
+    case "VECTOR":
+      return <BezierCurve />;
+
+    case "LINE":
+      return <LineSegment />;
+
+    default:
+      return <Square />;
+  }
 }
 
 function evaluateExpression(expression: string, scope: Record<string, any>) {
@@ -443,7 +513,7 @@ function ExpressionInput({
   }, [expression, scope]);
 
   return (
-    <div className="flex relative">
+    <div className="flex flex-col gap-1">
       <input
         type="text"
         placeholder="Enter an expression"
@@ -451,8 +521,8 @@ function ExpressionInput({
         value={expression}
         onChange={(e) => setExpression(e.target.value)}
       />
-      <div className="text-text-secondary font-mono absolute right-2 top-1/2 -translate-y-1/2">
-        {JSON.stringify(value)}
+      <div className="text-text-secondary text-sm font-mono">
+        {value === undefined ? "undefined" : JSON.stringify(value)}
       </div>
     </div>
   );
