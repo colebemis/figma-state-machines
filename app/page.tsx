@@ -216,38 +216,42 @@ export default function Plugin() {
       <div className="grid grid-rows-[auto_1fr] overflow-hidden h-screen">
         <div className="h-10 pl-4 pr-2 items-center flex justify-between">
           <span className="font-bold">States</span>
-          <IconButton
-            aria-label="Reset state machine"
-            onClick={() => setCurrentState(stateMachine.initial)}
-          >
-            <ArrowUUpLeft />
-          </IconButton>
+          {stateMachine.states.length > 0 && (
+            <IconButton
+              aria-label="Reset state machine"
+              onClick={() => setCurrentState(stateMachine.initial)}
+            >
+              <ArrowUUpLeft />
+            </IconButton>
+          )}
         </div>
         <div className="overflow-auto">
           <div className="grid gap-2 p-2 pt-0">
-            <div className="flex flex-col gap-1 p-2">
-              <label htmlFor="initial-state" className="text-text-secondary">
-                Initial state
-              </label>
-              <div className="flex items-center gap-2 w-full">
-                <Select
-                  id="initial-state"
-                  value={stateMachine.initial}
-                  onChange={(e) => {
-                    setStateMachine((prev) => ({
-                      ...prev,
-                      initial: e.target.value,
-                    }));
-                  }}
-                >
-                  {stateMachine.states.map(([state]) => (
-                    <option key={state} value={state}>
-                      {state}
-                    </option>
-                  ))}
-                </Select>
+            {stateMachine.states.length > 0 && (
+              <div className="flex flex-col gap-1 p-2">
+                <label htmlFor="initial-state" className="text-text-secondary">
+                  Initial state
+                </label>
+                <div className="flex items-center gap-2 w-full">
+                  <Select
+                    id="initial-state"
+                    value={stateMachine.initial}
+                    onChange={(e) => {
+                      setStateMachine((prev) => ({
+                        ...prev,
+                        initial: e.target.value,
+                      }));
+                    }}
+                  >
+                    {stateMachine.states.map(([state]) => (
+                      <option key={state} value={state}>
+                        {state}
+                      </option>
+                    ))}
+                  </Select>
+                </div>
               </div>
-            </div>
+            )}
             {stateMachine.states.map(([state, { on: events }]) => (
               <State
                 key={state}
