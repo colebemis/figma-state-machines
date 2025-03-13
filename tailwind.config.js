@@ -5,6 +5,15 @@ module.exports = {
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  theme: {},
+  theme: {
+    extend: {
+      borderRadius: {
+        DEFAULT: "5px",
+      },
+      fontWeight: {
+        bold: "550",
+      },
+    },
+  },
   plugins: [],
 };

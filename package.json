@@ -14,10 +14,12 @@
   },
   "dependencies": {
     "@figma/plugin-typings": "^1.108.0",
+    "@phosphor-icons/react": "^2.1.7",
     "@types/node": "20.4.2",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "autoprefixer": "10.4.14",
+    "clsx": "^2.1.1",
     "esbuild": "^0.18.12",
     "eslint": "^9.22.0",
     "eslint-config-next": "^15.2.2",
