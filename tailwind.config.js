@@ -11,6 +11,7 @@ module.exports = {
       mono: "var(--font-family-mono)",
     },
     fontWeight: {
+      normal: "400",
       bold: "500",
     },
     borderRadius: {
@@ -24,6 +25,7 @@ module.exports = {
         DEFAULT: "var(--color-text)",
         secondary: "var(--color-text-secondary)",
         danger: "var(--color-text-danger)",
+        warning: "var(--color-text-warning)",
         onbrand: "var(--color-text-onbrand)",
       },
       bg: {
