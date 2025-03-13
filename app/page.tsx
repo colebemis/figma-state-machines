@@ -21,6 +21,7 @@ import { useVariable } from "@/lib/use-variable";
 import {
   ArrowUUpLeft,
   BezierCurve,
+  CaretRight,
   Circle,
   IconContext,
   LineSegment,
@@ -100,6 +101,7 @@ export default function Plugin() {
   );
   const [hoverState, setHoverState] = React.useState<string | null>(null);
   const [isAddingNewState, setIsAddingNewState] = React.useState(false);
+  const [isUISectionExpanded, setIsUISectionExpanded] = React.useState(true);
   const [selectedNode, setSelectedNode] = React.useState<FigmaNode | null>(
     null
   );
@@ -199,7 +201,7 @@ export default function Plugin() {
 
   return (
     <IconContext.Provider value={{ size: 16 }}>
-      <Tabs.Root
+      {/* <Tabs.Root
         defaultValue="states"
         className="grid grid-rows-[auto_1fr] overflow-hidden h-screen"
       >
@@ -210,214 +212,263 @@ export default function Plugin() {
         <Tabs.Content
           value="states"
           className="data-[state=active]:grid grid-rows-[1fr_auto] overflow-hidden"
-        >
-          <div className="overflow-auto">
-            <div className="grid gap-2 p-2">
-              <div className="flex flex-col gap-1 p-2 pr-0">
-                <label htmlFor="initial-state" className="text-text-secondary">
-                  Initial state
-                </label>
-                <div className="flex items-center gap-2 w-full">
-                  <Select
-                    id="initial-state"
-                    value={stateMachine.initial}
-                    onChange={(e) => {
-                      setStateMachine((prev) => ({
-                        ...prev,
-                        initial: e.target.value,
-                      }));
-                    }}
-                  >
-                    {stateMachine.states.map(([state]) => (
-                      <option key={state} value={state}>
-                        {state}
-                      </option>
-                    ))}
-                  </Select>
-                  <IconButton
-                    aria-label="Reset state machine"
-                    onClick={() => setCurrentState(stateMachine.initial)}
-                  >
-                    <ArrowUUpLeft />
-                  </IconButton>
-                </div>
-              </div>
-              {stateMachine.states.map(([state, { on: events }]) => (
-                <State
-                  key={state}
-                  stateName={state}
-                  current={currentState === state}
-                  hover={hoverState === state}
-                  initial={stateMachine.initial === state}
-                  unreachable={unreachableStates.includes(state)}
-                  stateMachine={stateMachine}
-                  unresolvedStates={unresolvedStates}
-                  onEventMouseEnter={(event) =>
-                    setHoverState(parseEventValue(events[event]).target)
-                  }
-                  onEventMouseLeave={() => setHoverState(null)}
-                  onEventClick={(event) => {
-                    setHoverState(null);
-
-                    const { target, actions } = parseEventValue(events[event]);
-
-                    if (target) {
-                      setCurrentState(target);
-                    }
-
-                    console.log(actions);
+        > */}
+      <div className="grid grid-rows-[auto_1fr] overflow-hidden h-screen">
+        <div className="h-10 pl-4 pr-2 items-center flex justify-between">
+          <span className="font-bold">States</span>
+          <IconButton
+            aria-label="Reset state machine"
+            onClick={() => setCurrentState(stateMachine.initial)}
+          >
+            <ArrowUUpLeft />
+          </IconButton>
+        </div>
+        <div className="overflow-auto">
+          <div className="grid gap-2 p-2 pt-0">
+            <div className="flex flex-col gap-1 p-2">
+              <label htmlFor="initial-state" className="text-text-secondary">
+                Initial state
+              </label>
+              <div className="flex items-center gap-2 w-full">
+                <Select
+                  id="initial-state"
+                  value={stateMachine.initial}
+                  onChange={(e) => {
+                    setStateMachine((prev) => ({
+                      ...prev,
+                      initial: e.target.value,
+                    }));
                   }}
-                  onChange={(newStateName, newStateValue) => {
-                    setStateMachine((prev) => {
-                      // Create a new state machine with updated state and events
-                      const updatedStates: Array<[string, StateValue]> =
-                        prev.states.map(([s, stateValue]) => {
-                          if (s === state) {
-                            return [newStateName, newStateValue];
-                          }
-                          return [s, stateValue];
+                >
+                  {stateMachine.states.map(([state]) => (
+                    <option key={state} value={state}>
+                      {state}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+            </div>
+            {stateMachine.states.map(([state, { on: events }]) => (
+              <State
+                key={state}
+                stateName={state}
+                current={currentState === state}
+                hover={hoverState === state}
+                initial={stateMachine.initial === state}
+                unreachable={unreachableStates.includes(state)}
+                stateMachine={stateMachine}
+                unresolvedStates={unresolvedStates}
+                onEventMouseEnter={(event) =>
+                  setHoverState(parseEventValue(events[event]).target)
+                }
+                onEventMouseLeave={() => setHoverState(null)}
+                onEventClick={(event) => {
+                  setHoverState(null);
+
+                  const { target, actions } = parseEventValue(events[event]);
+
+                  if (target) {
+                    setCurrentState(target);
+                  }
+
+                  console.log(actions);
+                }}
+                onChange={(newStateName, newStateValue) => {
+                  setStateMachine((prev) => {
+                    // Create a new state machine with updated state and events
+                    const updatedStates: Array<[string, StateValue]> =
+                      prev.states.map(([s, stateValue]) => {
+                        if (s === state) {
+                          return [newStateName, newStateValue];
+                        }
+                        return [s, stateValue];
+                      });
+
+                    // If the state name changed, we need to update references
+                    if (newStateName !== state) {
+                      // Update target references in other states' events
+                      const newStates: Array<[string, StateValue]> =
+                        updatedStates.map(([s, stateValue]) => {
+                          const updatedEvents = { ...stateValue.on };
+                          Object.keys(updatedEvents).forEach((eventName) => {
+                            const eventValue = parseEventValue(
+                              updatedEvents[eventName]
+                            );
+                            if (eventValue.target === state) {
+                              // Use shorthand if there are no actions
+                              if (eventValue.actions.length === 0) {
+                                updatedEvents[eventName] = newStateName;
+                              } else {
+                                updatedEvents[eventName] = {
+                                  target: newStateName,
+                                  actions: eventValue.actions,
+                                };
+                              }
+                            }
+                          });
+                          return [s, { on: updatedEvents }];
                         });
 
-                      // If the state name changed, we need to update references
-                      if (newStateName !== state) {
-                        // Update target references in other states' events
-                        const newStates: Array<[string, StateValue]> =
-                          updatedStates.map(([s, stateValue]) => {
-                            const updatedEvents = { ...stateValue.on };
-                            Object.keys(updatedEvents).forEach((eventName) => {
-                              const eventValue = parseEventValue(
-                                updatedEvents[eventName]
-                              );
-                              if (eventValue.target === state) {
-                                // Use shorthand if there are no actions
-                                if (eventValue.actions.length === 0) {
-                                  updatedEvents[eventName] = newStateName;
-                                } else {
-                                  updatedEvents[eventName] = {
-                                    target: newStateName,
-                                    actions: eventValue.actions,
-                                  };
-                                }
-                              }
-                            });
-                            return [s, { on: updatedEvents }];
-                          });
-
-                        // Update initial state if needed
-                        const newInitial =
-                          prev.initial === state ? newStateName : prev.initial;
-
-                        return {
-                          ...prev,
-                          states: newStates,
-                          initial: newInitial,
-                        };
-                      }
+                      // Update initial state if needed
+                      const newInitial =
+                        prev.initial === state ? newStateName : prev.initial;
 
                       return {
                         ...prev,
-                        states: updatedStates,
+                        states: newStates,
+                        initial: newInitial,
                       };
-                    });
-
-                    // Update current state if it was the renamed state
-                    if (currentState === state && newStateName !== state) {
-                      setCurrentState(newStateName);
                     }
-                  }}
-                  onRemove={() => {
-                    // Remove the state from the state machine
-                    setStateMachine((prev) => {
-                      // Remove the state and keep the rest
-                      const remainingStates: Array<[string, StateValue]> =
-                        prev.states.filter(([s]) => s !== state);
 
-                      // Determine if we need a new initial state
-                      const needsNewInitial =
-                        prev.initial === state && remainingStates.length > 0;
+                    return {
+                      ...prev,
+                      states: updatedStates,
+                    };
+                  });
 
-                      return {
-                        ...prev,
-                        states: remainingStates,
-                        // Set a new initial state if needed
-                        ...(needsNewInitial
-                          ? { initial: remainingStates[0][0] }
-                          : {}),
-                      };
-                    });
+                  // Update current state if it was the renamed state
+                  if (currentState === state && newStateName !== state) {
+                    setCurrentState(newStateName);
+                  }
+                }}
+                onRemove={() => {
+                  // Remove the state from the state machine
+                  setStateMachine((prev) => {
+                    // Remove the state and keep the rest
+                    const remainingStates: Array<[string, StateValue]> =
+                      prev.states.filter(([s]) => s !== state);
 
-                    // Update current state if it was the removed state
-                    if (currentState === state) {
-                      const newCurrentState =
-                        stateMachine.states.find(([s]) => s !== state)?.[0] ||
-                        "";
-                      setCurrentState(newCurrentState);
-                    }
+                    // Determine if we need a new initial state
+                    const needsNewInitial =
+                      prev.initial === state && remainingStates.length > 0;
+
+                    return {
+                      ...prev,
+                      states: remainingStates,
+                      // Set a new initial state if needed
+                      ...(needsNewInitial
+                        ? { initial: remainingStates[0][0] }
+                        : {}),
+                    };
+                  });
+
+                  // Update current state if it was the removed state
+                  if (currentState === state) {
+                    const newCurrentState =
+                      stateMachine.states.find(([s]) => s !== state)?.[0] || "";
+                    setCurrentState(newCurrentState);
+                  }
+                }}
+              />
+            ))}
+            {unresolvedStates.length > 0 &&
+              unresolvedStates.map((state) => (
+                <UnresolvedState
+                  key={state}
+                  stateName={state}
+                  stateMachine={stateMachine}
+                  onCreate={(stateName, stateValue) => {
+                    setStateMachine((prev) => ({
+                      ...prev,
+                      states: [...prev.states, [stateName, stateValue]],
+                    }));
                   }}
                 />
               ))}
-              {unresolvedStates.length > 0 &&
-                unresolvedStates.map((state) => (
-                  <UnresolvedState
-                    key={state}
-                    stateName={state}
-                    stateMachine={stateMachine}
-                    onCreate={(stateName, stateValue) => {
-                      setStateMachine((prev) => ({
-                        ...prev,
-                        states: [...prev.states, [stateName, stateValue]],
-                      }));
-                    }}
-                  />
-                ))}
-              {isAddingNewState ? (
-                <StateEditor
-                  initial={false}
-                  onCancel={() => setIsAddingNewState(false)}
-                  stateMachine={stateMachine}
-                  unreachable={false}
-                  onSave={(stateName, stateValue) => {
-                    setStateMachine((prev) => {
-                      const isFirstState = prev.states.length === 0;
-                      return {
-                        ...prev,
-                        states: [
-                          ...prev.states,
-                          [stateName, stateValue] as [string, StateValue],
-                        ],
-                        // Make it the initial state if it's the first one
-                        ...(isFirstState ? { initial: stateName } : {}),
-                      };
-                    });
+            {isAddingNewState ? (
+              <StateEditor
+                initial={false}
+                onCancel={() => setIsAddingNewState(false)}
+                stateMachine={stateMachine}
+                unreachable={false}
+                onSave={(stateName, stateValue) => {
+                  setStateMachine((prev) => {
+                    const isFirstState = prev.states.length === 0;
+                    return {
+                      ...prev,
+                      states: [
+                        ...prev.states,
+                        [stateName, stateValue] as [string, StateValue],
+                      ],
+                      // Make it the initial state if it's the first one
+                      ...(isFirstState ? { initial: stateName } : {}),
+                    };
+                  });
 
-                    // Set as current state if it's the first one
-                    if (stateMachine.states.length === 0) {
-                      setCurrentState(stateName);
-                    }
+                  // Set as current state if it's the first one
+                  if (stateMachine.states.length === 0) {
+                    setCurrentState(stateName);
+                  }
 
-                    setIsAddingNewState(false);
-                  }}
-                />
-              ) : (
-                <button
-                  className="px-2 h-9 hover:bg-bg-secondary rounded text-left flex items-center gap-2"
-                  onClick={() => setIsAddingNewState(true)}
-                >
-                  <Plus />
-                  Add state
-                </button>
-              )}
-            </div>
-          </div>
-          <div className="border-t border-border">
-            <div className="pl-4 pr-2 h-10 flex items-center justify-between text-text-secondary">
-              <span className="font-bold">Context</span>
-              <IconButton aria-label="Add context value">
+                  setIsAddingNewState(false);
+                }}
+              />
+            ) : (
+              <button
+                className="px-2 h-9 hover:bg-bg-secondary rounded text-left flex items-center gap-2"
+                onClick={() => setIsAddingNewState(true)}
+              >
                 <Plus />
-              </IconButton>
-            </div>
+                Add state
+              </button>
+            )}
           </div>
-        </Tabs.Content>
+        </div>
+        <div className="border-t border-border">
+          <div className="pl-4 pr-2 h-10 flex items-center justify-between text-text-secondary">
+            <span className="font-bold">Context</span>
+            <IconButton aria-label="Add context value">
+              <Plus />
+            </IconButton>
+          </div>
+        </div>
+        <div className="border-t border-border max-h-[50vh] grid grid-rows-[auto_1fr]">
+          <button
+            disabled={nodeBindings.length === 0 && !selectedNode}
+            className={clsx(
+              "pl-4 pr-2 h-10 flex items-center justify-between group disabled:pointer-events-none",
+              {
+                "text-text-secondary":
+                  nodeBindings.length === 0 && !selectedNode,
+              }
+            )}
+            onClick={() => setIsUISectionExpanded(!isUISectionExpanded)}
+          >
+            <CaretRight
+              size={8}
+              weight="bold"
+              className={clsx(
+                "absolute left-1 text-text-secondary group-hover:text-text-primary",
+                isUISectionExpanded &&
+                  "group-hover:opacity-100 opacity-0 rotate-90"
+              )}
+            />
+            <span className="font-bold">UI</span>
+            {/* {nodeBindings.length > 0 || selectedNode ? (
+              <IconButton
+                aria-label={isUISectionExpanded ? "Collapse" : "Expand"}
+                onClick={() => setIsUISectionExpanded(!isUISectionExpanded)}
+              >
+                {isUISectionExpanded ? <CaretUp /> : <CaretDown />}
+              </IconButton>
+            ) : null} */}
+          </button>
+
+          {isUISectionExpanded && (nodeBindings.length > 0 || selectedNode) ? (
+            <div className="overflow-auto">
+              <div className="p-2 pt-0">
+                <UIBindings
+                  currentState={currentState}
+                  selectedNode={selectedNode}
+                  nodeBindings={nodeBindings}
+                  onNodeBindingsChange={setNodeBindings}
+                />
+              </div>
+            </div>
+          ) : null}
+        </div>
+      </div>
+      {/* </Tabs.Content>
         <Tabs.Content value="ui">
           <div className="p-2">
             <UIBindings
@@ -428,7 +479,7 @@ export default function Plugin() {
             />
           </div>
         </Tabs.Content>
-      </Tabs.Root>
+      </Tabs.Root> */}
     </IconContext.Provider>
   );
 }
@@ -470,7 +521,7 @@ function UIBindings({
               }}
             >
               <NodeIcon type={node.type} />
-              <span className="font-bold">{node.name}</span>
+              <span>{node.name}</span>
             </button>
             <IconButton
               aria-label="Add binding"
@@ -485,7 +536,7 @@ function UIBindings({
                     bindings: [
                       {
                         property: "visibility",
-                        expression: "",
+                        expression: "currentState === ",
                       },
                     ],
                   },
@@ -565,7 +616,7 @@ function UIBindings({
         <div className="flex items-center gap-2">
           <button className="flex items-center gap-2 h-6 px-2 rounded flex-grow bg-bg-selected">
             <NodeIcon type={selectedNode.type} />
-            <span className="font-bold italic">{selectedNode.name}</span>
+            <span className="italic">{selectedNode.name}</span>
           </button>
           <IconButton
             aria-label="Add binding"
@@ -574,7 +625,12 @@ function UIBindings({
                 ...nodeBindings,
                 {
                   node: selectedNode,
-                  bindings: [{ property: "visibility", expression: "" }],
+                  bindings: [
+                    {
+                      property: "visibility",
+                      expression: "currentState === ",
+                    },
+                  ],
                 },
               ]);
             }}
@@ -631,9 +687,9 @@ function ExpressionInput({
         value={expression}
         onChange={(e) => onExpressionChange(e.target.value)}
       />
-      <div className="text-text-secondary text-sm font-mono">
+      {/* <div className="text-text-secondary text-sm font-mono">
         {value === undefined ? "undefined" : JSON.stringify(value)}
-      </div>
+      </div> */}
     </div>
   );
 }

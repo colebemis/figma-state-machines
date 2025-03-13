@@ -21,8 +21,9 @@ export function Select({
         )}
       />
       <CaretDown
-        size={12}
-        className="absolute right-1.5 top-1.5 pointer-events-none"
+        size={8}
+        weight="bold"
+        className="absolute right-2 top-2 pointer-events-none"
       />
     </div>
   );

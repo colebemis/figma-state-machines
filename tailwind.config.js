@@ -12,7 +12,7 @@ module.exports = {
     },
     fontWeight: {
       normal: "400",
-      bold: "500",
+      bold: "550",
     },
     borderRadius: {
       DEFAULT: "var(--radius-base)",
