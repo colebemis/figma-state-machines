@@ -32,6 +32,13 @@ figma.ui.onmessage = async (message, props) => {
   }
 
   switch (message.type) {
+    case "SELECT_NODE": {
+      const node = figma.getNodeById(message.nodeId);
+      if (node && node.type !== "DOCUMENT" && node.type !== "PAGE") {
+        figma.currentPage.selection = [node as SceneNode];
+      }
+      break;
+    }
     case "EVAL": {
       const fn = eval.call(null, message.code);
 
