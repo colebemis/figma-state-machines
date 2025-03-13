@@ -6,13 +6,44 @@ module.exports = {
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {
-      borderRadius: {
-        DEFAULT: "5px",
+    fontFamily: {
+      default: "var(--font-family-default)",
+      mono: "var(--font-family-mono)",
+    },
+    fontWeight: {
+      bold: "550",
+    },
+    borderRadius: {
+      DEFAULT: "var(--radius-base)",
+      lg: "var(--radius-lg)",
+      full: "var(--radius-full)",
+      none: "0",
+    },
+    colors: {
+      text: {
+        DEFAULT: "var(--color-text)",
+        secondary: "var(--color-text-secondary)",
+        onbrand: "var(--color-text-onbrand)",
       },
-      fontWeight: {
-        bold: "550",
+      bg: {
+        DEFAULT: "var(--color-bg)",
+        secondary: "var(--color-bg-secondary)",
+        menu: "var(--color-bg-menu)",
+        selected: "var(--color-bg-selected)",
+        brand: {
+          DEFAULT: "var(--color-bg-brand)",
+          pressed: "var(--color-bg-brand-pressed)",
+        },
       },
+      border: {
+        DEFAULT: "var(--color-border)",
+        selected: "var(--color-border-selected)",
+      },
+    },
+    fontSize: {
+      sm: "var(--font-size-sm)",
+      base: "var(--font-size-base)",
+      lg: "var(--font-size-lg)",
     },
   },
   plugins: [],

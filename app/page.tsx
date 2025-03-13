@@ -119,12 +119,12 @@ export default function Plugin() {
 
   return (
     <div>
-      <div className="flex flex-col gap-2 p-4">
+      <div className="flex flex-col gap-2 p-2">
         {Object.keys(stateMachine.states).map((state) => (
           <div
             key={state}
             data-current={currentState === state}
-            className="rounded border border-[#e6e6e6] data-[current=true]:outline data-[current=true]:outline-[#0d99ff] data-[current=true]:outline-2 data-[current=true]:-outline-offset-2"
+            className="rounded border border-border data-[current=true]:outline data-[current=true]:outline-border-selected data-[current=true]:outline-2 data-[current=true]:-outline-offset-1"
           >
             <div className="px-2 py-1.5 font-bold flex items-center gap-1">
               {stateMachine.initial === state ? (
@@ -133,7 +133,7 @@ export default function Plugin() {
               {state}
             </div>
             <div className="p-2 gap-1.5 flex flex-col">
-              <span className="text-black/50">Events</span>
+              <span className="text-text-secondary">Events</span>
               <div className="flex flex-col gap-1.5 items-start">
                 {Object.entries(stateMachine.states[state].on).map(
                   ([event, { target, actions }]) => (
@@ -146,7 +146,7 @@ export default function Plugin() {
                               setCount(actionDefinitions[action](count))
                             );
                           }}
-                          className="px-2 bg-[#f5f5f5] h-6 flex items-center rounded-full [[data-current=true]_&]:bg-[#0d99ff] [[data-current=true]_&]:text-white"
+                          className="px-2 bg-bg-secondary h-6 flex items-center rounded-full [[data-current=true]_&]:bg-bg-brand [[data-current=true]_&]:text-text-onbrand"
                         >
                           {event}
                         </button>
