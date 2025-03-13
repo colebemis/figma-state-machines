@@ -18,14 +18,23 @@ import {
 import clsx from "clsx";
 import React from "react";
 import { parse as yamlParse, stringify as yamlStringify } from "yaml";
+import { z } from "zod";
 
-type EventValue = string | { target: string; actions?: string | string[] };
+const EventValueSchema = z.union([
+  z.string(),
+  z.object({
+    target: z.string(),
+    actions: z.union([z.string(), z.array(z.string())]).optional(),
+  }),
+]);
 
-type StateValue = {
-  on: {
-    [key: string]: EventValue;
-  };
-};
+type EventValue = z.infer<typeof EventValueSchema>;
+
+const StateValueSchema = z.object({
+  on: z.record(z.string(), EventValueSchema),
+});
+
+type StateValue = z.infer<typeof StateValueSchema>;
 
 type StateMachine = {
   initial: string;
@@ -181,7 +190,10 @@ function StateBlock({
         events={events}
         initial={initial}
         onCancel={() => setIsEditing(false)}
-        onSave={() => setIsEditing(false)}
+        onSave={(value) => {
+          setIsEditing(false);
+          console.log(value);
+        }}
       />
     );
   }
@@ -276,8 +288,15 @@ function StateEditor({
   };
   initial: boolean;
   onCancel: () => void;
-  onSave: (state: string) => void;
+  onSave: ({
+    state,
+    events,
+  }: {
+    state: string;
+    events: { [key: string]: EventValue };
+  }) => void;
 }) {
+  const [error, setError] = React.useState<string | null>(null);
   const [yamlStr, setYamlStr] = React.useState(() =>
     // Convert object to yaml string
     events
@@ -297,7 +316,18 @@ function StateEditor({
       className="rounded bg-bg-secondary grid"
       onSubmit={(event) => {
         event.preventDefault();
-        onSave(state ?? "");
+
+        const formData = new FormData(event.currentTarget);
+        const stateName = formData.get("stateName") as string;
+        const yamlStr = formData.get("yamlStr") as string;
+
+        try {
+          const stateValue = StateValueSchema.parse(yamlParse(yamlStr));
+          onSave({ state: stateName, events: stateValue.on });
+        } catch (error) {
+          // TODO: Use an LLM to generate a more helpful error message?
+          setError(error instanceof Error ? error.message : "Unknown error");
+        }
       }}
     >
       <div className="border-b border-border">
@@ -309,9 +339,12 @@ function StateEditor({
           <input
             autoFocus
             type="text"
-            name="state"
+            name="stateName"
             placeholder="State name"
             defaultValue={state}
+            onChange={(event) => {
+              setError(null);
+            }}
             className=" pl-8 pr-9 absolute inset-0 text-[inherit] bg-[transparent] placeholder:text-text-secondary outline-none font-bold"
           />
           <div className="absolute top-1.5 right-1.5 flex items-center gap-1 ">
@@ -343,16 +376,22 @@ function StateEditor({
           ))}
         </div>
         <textarea
+          name="yamlStr"
           placeholder={placeholder}
           value={yamlStr}
-          onChange={(event) => setYamlStr(event.target.value)}
+          onChange={(event) => {
+            setYamlStr(event.target.value);
+            setError(null);
+          }}
           className="w-full bg-transparent outline-none resize-none bg-[transparent] placeholder:text-text-secondary"
         />
       </div>
-      <div className="px-2 h-9 text-text-danger flex items-center gap-2">
-        <Warning size={16} />
-        Oops! Something went wrong.
-      </div>
+      {error ? (
+        <div className="p-2 text-text-danger flex items-start gap-2">
+          <Warning size={16} className="flex-shrink-0" />
+          <div className="whitespace-pre-wrap  font-mono">{error}</div>
+        </div>
+      ) : null}
     </form>
   );
 }
