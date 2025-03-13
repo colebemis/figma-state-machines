@@ -112,7 +112,7 @@ export default function Plugin() {
     for (const nodeBinding of nodeBindings) {
       for (const binding of nodeBinding.bindings) {
         const value = evaluateExpression(binding.expression, {
-          currentState,
+          state: currentState,
         });
 
         // Skip if the expression is undefined

@@ -60,7 +60,7 @@ export function UIBindings({
                     bindings: [
                       {
                         property: "visibility",
-                        expression: "currentState === ",
+                        expression: "state === ",
                       },
                     ],
                   },
@@ -81,7 +81,7 @@ export function UIBindings({
                 </Select>
                 <ExpressionInput
                   expression={binding.expression}
-                  scope={{ currentState }}
+                  scope={{ state: currentState }}
                   onExpressionChange={(expression) => {
                     // Update the node bindings when an expression changes
                     onNodeBindingsChange(
@@ -152,7 +152,7 @@ export function UIBindings({
                   bindings: [
                     {
                       property: "visibility",
-                      expression: "currentState === ",
+                      expression: "state === ",
                     },
                   ],
                 },
