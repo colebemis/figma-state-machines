@@ -26,8 +26,31 @@ figma.on("selectionchange", () => {
   }
 });
 
+// Send initial selection after UI is ready
 figma.ui.onmessage = async (message, props) => {
   if (props.origin !== SITE_URL) {
+    return;
+  }
+
+  // If this is the first message from the UI, send initial selection
+  if (message.type === "UI_READY") {
+    const initialSelection = figma.currentPage.selection;
+    if (initialSelection.length === 1) {
+      const node = initialSelection[0];
+      figma.ui.postMessage({
+        type: "SELECTED_NODE",
+        node: {
+          id: node.id,
+          name: node.name,
+          type: node.type,
+        },
+      });
+    } else {
+      figma.ui.postMessage({
+        type: "SELECTED_NODE",
+        node: null,
+      });
+    }
     return;
   }
 

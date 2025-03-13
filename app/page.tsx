@@ -105,6 +105,17 @@ export default function Plugin() {
         setSelectedNode(message.node);
       }
     };
+
+    // Send UI_READY message when component mounts
+    parent.postMessage(
+      {
+        pluginMessage: {
+          type: "UI_READY",
+        },
+        pluginId: "*",
+      },
+      "*"
+    );
   }, []);
 
   // Calculate unreachable states
@@ -166,7 +177,6 @@ export default function Plugin() {
           className="data-[state=active]:grid grid-rows-[1fr_auto] overflow-hidden"
         >
           <div className="overflow-auto">
-            {JSON.stringify(selectedNode)}
             <div className="grid gap-2 p-2">
               <div className="flex flex-col gap-1 p-2 pr-0">
                 <label htmlFor="initial-state" className="text-text-secondary">
