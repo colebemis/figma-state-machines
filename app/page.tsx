@@ -101,7 +101,8 @@ export default function Plugin() {
     schema: z.boolean(),
     defaultValue: true,
   });
-  const [hoverState, setHoverState] = React.useState<string | null>(null);
+
+  const [nextState, setNextState] = React.useState<string | null>(null);
   const [isAddingNewState, setIsAddingNewState] = React.useState(false);
   const [selectedNode, setSelectedNode] = React.useState<FigmaNode | null>(
     null
@@ -246,17 +247,17 @@ export default function Plugin() {
                 key={state}
                 stateName={state}
                 current={currentState === state}
-                hover={hoverState === state}
+                hover={nextState === state}
                 initial={stateMachine.initial === state}
                 unreachable={unreachableStates.includes(state)}
                 stateMachine={stateMachine}
                 unresolvedStates={unresolvedStates}
                 onEventMouseEnter={(event) =>
-                  setHoverState(parseEventValue(events[event]).target)
+                  setNextState(parseEventValue(events[event]).target)
                 }
-                onEventMouseLeave={() => setHoverState(null)}
+                onEventMouseLeave={() => setNextState(null)}
                 onEventClick={(event) => {
-                  setHoverState(null);
+                  setNextState(null);
 
                   const { target, actions } = parseEventValue(events[event]);
 
