@@ -8,6 +8,7 @@ import { UnresolvedState } from "@/components/unresolved-state";
 import { evaluateExpression } from "@/lib/evaluate-expression";
 import { figmaAPI } from "@/lib/figma-api";
 import { parseEventValue } from "@/lib/parse-event-value";
+import { z } from "zod";
 import {
   FigmaNode,
   FigmaNodeBindings,
@@ -31,7 +32,7 @@ import {
   Square,
   TextT,
 } from "@phosphor-icons/react";
-import * as Tabs from "@radix-ui/react-tabs";
+// import * as Tabs from "@radix-ui/react-tabs";
 import clsx from "clsx";
 import React from "react";
 
@@ -74,14 +75,14 @@ const DEMO_STATE_MACHINE: StateMachine = {
   ],
 };
 
-function TabTrigger(props: Tabs.TabsTriggerProps) {
-  return (
-    <Tabs.Trigger
-      {...props}
-      className="h-6 px-2 rounded font-bold data-[state=inactive]:text-text-secondary data-[state=active]:bg-bg-secondary hover:bg-bg-secondary"
-    />
-  );
-}
+// function TabTrigger(props: Tabs.TabsTriggerProps) {
+//   return (
+//     <Tabs.Trigger
+//       {...props}
+//       className="h-6 px-2 rounded font-bold data-[state=inactive]:text-text-secondary data-[state=active]:bg-bg-secondary hover:bg-bg-secondary"
+//     />
+//   );
+// }
 
 export default function Plugin() {
   const [stateMachine, setStateMachine] = useRootPluginData({
@@ -99,9 +100,13 @@ export default function Plugin() {
     "STRING",
     stateMachine.initial
   );
+  const [isUISectionExpanded, setIsUISectionExpanded] = useRootPluginData({
+    key: "isUISectionExpanded",
+    schema: z.boolean(),
+    defaultValue: true,
+  });
   const [hoverState, setHoverState] = React.useState<string | null>(null);
   const [isAddingNewState, setIsAddingNewState] = React.useState(false);
-  const [isUISectionExpanded, setIsUISectionExpanded] = React.useState(true);
   const [selectedNode, setSelectedNode] = React.useState<FigmaNode | null>(
     null
   );
@@ -691,9 +696,9 @@ function ExpressionInput({
         value={expression}
         onChange={(e) => onExpressionChange(e.target.value)}
       />
-      {/* <div className="text-text-secondary text-sm font-mono">
+      <div className="text-text-secondary text-sm font-mono">
         {value === undefined ? "undefined" : JSON.stringify(value)}
-      </div> */}
+      </div>
     </div>
   );
 }
