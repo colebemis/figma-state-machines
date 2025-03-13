@@ -1,13 +1,17 @@
 "use client";
 
 import IconButton from "@/components/icon-button";
+import { Select } from "@/components/select";
 import { State } from "@/components/state";
 import { StateEditor } from "@/components/state-editor";
 import { UnresolvedState } from "@/components/unresolved-state";
+import { evaluateExpression } from "@/lib/evaluate-expression";
+import { figmaAPI } from "@/lib/figma-api";
 import { parseEventValue } from "@/lib/parse-event-value";
 import {
   FigmaNode,
-  FigmaNodeBinding,
+  FigmaNodeBindings,
+  FigmaNodeBindingsSchema,
   StateMachine,
   StateMachineSchema,
   StateValue,
@@ -17,9 +21,7 @@ import { useVariable } from "@/lib/use-variable";
 import {
   ArrowUUpLeft,
   BezierCurve,
-  CaretDown,
   Circle,
-  Eye,
   IconContext,
   LineSegment,
   Minus,
@@ -28,10 +30,9 @@ import {
   Square,
   TextT,
 } from "@phosphor-icons/react";
-import React from "react";
 import * as Tabs from "@radix-ui/react-tabs";
-import { Select } from "@/components/select";
 import clsx from "clsx";
+import React from "react";
 
 const DEMO_STATE_MACHINE: StateMachine = {
   initial: "empty",
@@ -87,6 +88,11 @@ export default function Plugin() {
     schema: StateMachineSchema,
     defaultValue: DEMO_STATE_MACHINE,
   });
+  const [nodeBindings, setNodeBindings] = useRootPluginData({
+    key: "nodeBindings",
+    schema: FigmaNodeBindingsSchema,
+    defaultValue: [],
+  });
   const [currentState, setCurrentState] = useVariable(
     "currentState",
     "STRING",
@@ -97,6 +103,35 @@ export default function Plugin() {
   const [selectedNode, setSelectedNode] = React.useState<FigmaNode | null>(
     null
   );
+
+  React.useEffect(() => {
+    for (const nodeBinding of nodeBindings) {
+      for (const binding of nodeBinding.bindings) {
+        const value = evaluateExpression(binding.expression, {
+          currentState,
+        });
+
+        // Skip if the expression is undefined
+        if (value === undefined) continue;
+
+        console.log(nodeBinding.node.id, binding.property, value);
+        switch (binding.property) {
+          case "visibility":
+            if (typeof value !== "boolean") continue;
+
+            figmaAPI.run(
+              async (figma, { nodeId, visible }) => {
+                const node = figma.getNodeById(nodeId);
+                if (node && node.type !== "DOCUMENT" && node.type !== "PAGE") {
+                  node.visible = visible;
+                }
+              },
+              { nodeId: nodeBinding.node.id, visible: value }
+            );
+        }
+      }
+    }
+  }, [nodeBindings, currentState]);
 
   React.useEffect(() => {
     window.onmessage = (event) => {
@@ -388,6 +423,8 @@ export default function Plugin() {
             <UIBindings
               currentState={currentState}
               selectedNode={selectedNode}
+              nodeBindings={nodeBindings}
+              onNodeBindingsChange={setNodeBindings}
             />
           </div>
         </Tabs.Content>
@@ -399,30 +436,16 @@ export default function Plugin() {
 function UIBindings({
   currentState,
   selectedNode,
+  nodeBindings,
+  onNodeBindingsChange,
 }: {
   currentState: string;
   selectedNode: FigmaNode | null;
+  nodeBindings: FigmaNodeBindings;
+  onNodeBindingsChange: (value: FigmaNodeBindings) => void;
 }) {
-  const [nodeBindings, setNodeBindings] = React.useState<
-    Array<FigmaNodeBinding>
-  >([
-    {
-      node: {
-        id: "40:7",
-        name: "Frame",
-        type: "FRAME",
-      },
-      bindings: [
-        {
-          property: "visibility",
-          expression: "currentState === 'valid'",
-        },
-      ],
-    },
-  ]);
-
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-2">
       {nodeBindings.map(({ node, bindings }) => (
         <div key={node.id} className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
@@ -449,7 +472,26 @@ function UIBindings({
               <NodeIcon type={node.type} />
               <span className="font-bold">{node.name}</span>
             </button>
-            <IconButton aria-label="Add binding">
+            <IconButton
+              aria-label="Add binding"
+              disabled={bindings.some(
+                (binding) => binding.property === "visibility"
+              )}
+              onClick={() => {
+                onNodeBindingsChange([
+                  ...nodeBindings,
+                  {
+                    node,
+                    bindings: [
+                      {
+                        property: "visibility",
+                        expression: "",
+                      },
+                    ],
+                  },
+                ]);
+              }}
+            >
               <Plus />
             </IconButton>
           </div>
@@ -463,10 +505,54 @@ function UIBindings({
                   <option value="visibility">Visibility</option>
                 </Select>
                 <ExpressionInput
-                  defaultExpression={binding.expression}
+                  expression={binding.expression}
                   scope={{ currentState }}
+                  onExpressionChange={(expression) => {
+                    // Update the node bindings when an expression changes
+                    onNodeBindingsChange(
+                      nodeBindings.map((b) => {
+                        // Find the node that contains the binding we're updating
+                        if (b.node.id === node.id) {
+                          return {
+                            ...b, // Keep all other node properties
+                            bindings: b.bindings.map((item) => {
+                              // Find the specific binding we're updating by property name
+                              if (item.property === binding.property) {
+                                return {
+                                  ...item, // Keep all other binding properties
+                                  expression, // Update the expression with the new value
+                                };
+                              }
+                              return item; // Return other bindings unchanged
+                            }),
+                          };
+                        }
+                        return b; // Return other nodes unchanged
+                      })
+                    );
+                  }}
                 />
-                <IconButton aria-label="Remove binding">
+                <IconButton
+                  aria-label="Remove binding"
+                  onClick={() => {
+                    onNodeBindingsChange(
+                      nodeBindings
+                        .map((b) => {
+                          if (b.node.id === node.id) {
+                            // Keep the node but filter out the specific binding
+                            return {
+                              ...b,
+                              bindings: b.bindings.filter(
+                                (item) => item.property !== binding.property
+                              ),
+                            };
+                          }
+                          return b; // Return other nodes unchanged
+                        })
+                        .filter((b) => b.bindings.length > 0) // Remove nodes with no bindings left
+                    );
+                  }}
+                >
                   <Minus />
                 </IconButton>
               </div>
@@ -481,7 +567,18 @@ function UIBindings({
             <NodeIcon type={selectedNode.type} />
             <span className="font-bold italic">{selectedNode.name}</span>
           </button>
-          <IconButton aria-label="Add binding">
+          <IconButton
+            aria-label="Add binding"
+            onClick={() => {
+              onNodeBindingsChange([
+                ...nodeBindings,
+                {
+                  node: selectedNode,
+                  bindings: [{ property: "visibility", expression: "" }],
+                },
+              ]);
+            }}
+          >
             <Plus />
           </IconButton>
         </div>
@@ -512,25 +609,15 @@ function NodeIcon({ type }: { type: string }) {
   }
 }
 
-function evaluateExpression(expression: string, scope: Record<string, any>) {
-  try {
-    const fn = new Function(...Object.keys(scope), `return ${expression}`);
-    return fn(...Object.values(scope));
-  } catch (error) {
-    console.warn(error);
-    return undefined;
-  }
-}
-
 function ExpressionInput({
-  defaultExpression,
+  expression,
   scope,
+  onExpressionChange,
 }: {
-  defaultExpression: string;
+  expression: string;
   scope: Record<string, any>;
+  onExpressionChange: (expression: string) => void;
 }) {
-  const [expression, setExpression] = React.useState(defaultExpression);
-
   const value = React.useMemo(() => {
     return evaluateExpression(expression, scope);
   }, [expression, scope]);
@@ -542,7 +629,7 @@ function ExpressionInput({
         placeholder="Enter an expression"
         className="w-full font-mono bg-bg-secondary rounded px-2 h-6 outline-none hover:ring-1 hover:ring-inset hover:ring-border focus:ring-1 focus:ring-inset focus:ring-border-selected placeholder:text-text-secondary"
         value={expression}
-        onChange={(e) => setExpression(e.target.value)}
+        onChange={(e) => onExpressionChange(e.target.value)}
       />
       <div className="text-text-secondary text-sm font-mono">
         {value === undefined ? "undefined" : JSON.stringify(value)}

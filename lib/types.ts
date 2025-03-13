@@ -42,3 +42,7 @@ export const FigmaNodeBindingSchema = z.object({
 });
 
 export type FigmaNodeBinding = z.infer<typeof FigmaNodeBindingSchema>;
+
+export const FigmaNodeBindingsSchema = z.array(FigmaNodeBindingSchema);
+
+export type FigmaNodeBindings = z.infer<typeof FigmaNodeBindingsSchema>;

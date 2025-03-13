@@ -13,6 +13,12 @@ export function useRootPluginData<T>({
 }) {
   const [value, _setValue] = React.useState<T>(defaultValue);
 
+  const valueRef = React.useRef<T>(value);
+
+  React.useEffect(() => {
+    valueRef.current = value;
+  }, [value]);
+
   React.useEffect(() => {
     async function init() {
       const storedValue = await figmaAPI.run(
@@ -33,13 +39,13 @@ export function useRootPluginData<T>({
     }
 
     init();
-  }, [key, defaultValue]);
+  }, [key]);
 
   const setValue = React.useCallback(
     (newValueOrUpdater: T | ((prev: T) => T)) => {
       const newValue =
         typeof newValueOrUpdater === "function"
-          ? (newValueOrUpdater as (prev: T) => T)(value)
+          ? (newValueOrUpdater as (prev: T) => T)(valueRef.current)
           : newValueOrUpdater;
 
       _setValue(newValue);
@@ -52,7 +58,7 @@ export function useRootPluginData<T>({
         { key, value: newValue }
       );
     },
-    [key, value]
+    [key]
   );
 
   return [value, setValue] as const;

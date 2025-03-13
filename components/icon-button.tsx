@@ -8,7 +8,7 @@ export default function IconButton(
   return (
     <button
       className={clsx(
-        "h-6 px-1 rounded hover:bg-bg-secondary",
+        "h-6 px-1 rounded enabled:hover:bg-bg-secondary disabled:cursor-not-allowed",
         props.className
       )}
       {...props}

@@ -124,7 +124,7 @@ export function State({
                     onMouseLeave={() => onEventMouseLeave(event)}
                     onClick={() => onEventClick(event)}
                     className={clsx(
-                      "px-2 h-6 flex items-center rounded-full relative",
+                      "px-2 h-6 flex items-center rounded-full relative disabled:cursor-not-allowed",
                       unresolvedStates.includes(parseEventValue(value).target)
                         ? "after:absolute after:inset-0 after:border after:border-dashed after:border-border after:rounded-full after:pointer-events-none"
                         : current
