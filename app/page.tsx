@@ -1,14 +1,18 @@
 "use client";
 
+import IconButton from "@/components/icon-button";
 import { useVariable } from "@/lib/use-variable";
-import React from "react";
 import {
+  ArrowBendDownRight,
   ArrowRight,
   ArrowUDownLeft,
-  ArrowElbowDownRight,
-  ArrowBendDownRight,
+  CursorText,
   Function,
+  Minus,
+  Pencil,
+  Plus,
 } from "@phosphor-icons/react";
+import clsx from "clsx";
 
 type StateMachine = {
   initial: string;
@@ -77,7 +81,7 @@ const actionDefinitions = {
   decrement: (count: number) => {
     return count - 1;
   },
-};
+} as const;
 // const stateMachine: StateMachine = {
 //   initial: "initializing",
 //   states: {
@@ -118,71 +122,104 @@ export default function Plugin() {
   );
 
   return (
-    <div>
-      <div className="flex flex-col gap-2 p-2">
-        {Object.keys(stateMachine.states).map((state) => (
-          <div
-            key={state}
-            data-current={currentState === state}
-            className="rounded border border-border data-[current=true]:outline data-[current=true]:outline-border-selected data-[current=true]:outline-2 data-[current=true]:-outline-offset-1"
-          >
-            <div className="px-2 py-1.5 font-bold flex items-center gap-1">
-              {stateMachine.initial === state ? (
-                <ArrowBendDownRight size={16} className="-mt-1" />
-              ) : null}
-              {state}
-            </div>
-            <div className="p-2 gap-1.5 flex flex-col">
-              <span className="text-text-secondary">Events</span>
-              <div className="flex flex-col gap-1.5 items-start">
-                {Object.entries(stateMachine.states[state].on).map(
-                  ([event, { target, actions }]) => (
-                    <div key={event} className="flex flex-col gap-1">
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={() => {
-                            setCurrentState(target);
-                            actions.forEach((action) =>
-                              setCount(actionDefinitions[action](count))
-                            );
-                          }}
-                          className="px-2 bg-bg-secondary h-6 flex items-center rounded-full [[data-current=true]_&]:bg-bg-brand [[data-current=true]_&]:text-text-onbrand"
-                        >
-                          {event}
-                        </button>
-                        {target === state ? (
-                          <ArrowUDownLeft size={16} />
-                        ) : (
-                          <>
-                            <ArrowRight size={16} />
-                            <span className="italic">{target}</span>
-                          </>
-                        )}
-                      </div>
-                      <div className="flex flex-col gap-1 pl-2">
-                        {actions.map((action) => (
-                          <span
-                            key={action}
-                            className="flex items-center gap-1"
+    <div className="grid grid-rows-[auto_1fr] overflow-hidden h-screen">
+      <div className="pl-4 pr-2 h-10 flex items-center justify-between border-b border-border">
+        <span className="font-bold">States</span>
+      </div>
+      <div className="grid grid-rows-[1fr_auto] overflow-hidden">
+        <div className="grid gap-2 p-2 overflow-y-auto">
+          {Object.keys(stateMachine.states).map((state) => (
+            <div
+              key={state}
+              className={clsx(
+                "rounded ring-1 ring-border relative group",
+                currentState === state &&
+                  "outline outline-border-selected outline-2 -outline-offset-1"
+              )}
+            >
+              <div className="px-2 h-8 font-bold flex items-center gap-1">
+                {stateMachine.initial === state ? (
+                  <ArrowBendDownRight size={16} className="-mt-1" />
+                ) : null}
+                {state}
+              </div>
+              <div className="absolute top-2 right-2 opacity-0 flex items-center gap-1 group-hover:opacity-100">
+                <IconButton aria-label="Edit state">
+                  <CursorText size={16} />
+                </IconButton>
+                <IconButton aria-label="Remove state">
+                  <Minus size={16} />
+                </IconButton>
+              </div>
+              <div className="p-2 gap-1.5 pt-1 flex flex-col">
+                <span className="text-text-secondary">Events</span>
+                <div className="flex flex-col gap-1.5 items-start">
+                  {Object.entries(stateMachine.states[state].on ?? {}).map(
+                    ([event, { target, actions }]) => (
+                      <div key={event} className="flex flex-col gap-1">
+                        <div className="flex items-center gap-1">
+                          <button
+                            disabled={currentState !== state}
+                            onClick={() => {
+                              actions.forEach((action) =>
+                                setCount(
+                                  actionDefinitions[
+                                    action as keyof typeof actionDefinitions
+                                  ](count)
+                                )
+                              );
+                              setCurrentState(target);
+                            }}
+                            className={clsx(
+                              "px-2 h-6 flex items-center rounded-full disabled:cursor-not-allowed",
+                              currentState === state
+                                ? "bg-bg-brand text-text-onbrand active:bg-bg-brand-pressed"
+                                : "bg-bg-secondary"
+                            )}
                           >
-                            <Function size={16} />
-                            {action}
-                          </span>
-                        ))}
+                            {event}
+                          </button>
+                          {target === state ? (
+                            <ArrowUDownLeft size={16} />
+                          ) : (
+                            <>
+                              <ArrowRight size={16} />
+                              <span className="italic">{target}</span>
+                            </>
+                          )}
+                        </div>
+                        <div className="flex flex-col gap-1 pl-2">
+                          {actions.map((action) => (
+                            <span
+                              key={action}
+                              className="flex items-center gap-1"
+                            >
+                              <Function size={16} />
+                              {action}
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )
-                )}
+                    )
+                  )}
+                </div>
               </div>
             </div>
+          ))}
+          <button className="px-2 h-6 hover:bg-bg-secondary rounded text-left flex items-center gap-2">
+            <Plus size={16} />
+            Add state
+          </button>
+        </div>
+        <div className="border-t border-border">
+          <div className="pl-4 pr-2 h-10 flex items-center justify-between text-text-secondary">
+            <span className="font-bold">Context</span>
+            <IconButton aria-label="Add context value">
+              <Plus size={16} />
+            </IconButton>
           </div>
-        ))}
+        </div>
       </div>
-      {/* <button onClick={() => setCount(count + 1)}>Increment</button>
-      <button onClick={() => setCount(count - 1)}>Decrement</button>
-      <div>{count}</div>
-      <input value={message} onChange={(e) => setMessage(e.target.value)} />
-      <div>{message}</div> */}
     </div>
   );
 }

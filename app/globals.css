@@ -44,3 +44,17 @@
     --color-border-selected: #0c8ce9;
   }
 }
+
+div,
+span,
+button {
+  user-select: none;
+}
+
+button {
+  cursor: default;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}

@@ -11,7 +11,7 @@ module.exports = {
       mono: "var(--font-family-mono)",
     },
     fontWeight: {
-      bold: "550",
+      bold: "500",
     },
     borderRadius: {
       DEFAULT: "var(--radius-base)",
