@@ -8,7 +8,6 @@ import { UnresolvedState } from "@/components/unresolved-state";
 import { evaluateExpression } from "@/lib/evaluate-expression";
 import { figmaAPI } from "@/lib/figma-api";
 import { parseEventValue } from "@/lib/parse-event-value";
-import { z } from "zod";
 import {
   FigmaNode,
   FigmaNodeBindings,
@@ -21,20 +20,17 @@ import { useRootPluginData } from "@/lib/use-plugin-data";
 import { useVariable } from "@/lib/use-variable";
 import {
   ArrowUUpLeft,
-  BezierCurve,
   CaretRight,
-  Circle,
   IconContext,
-  LineSegment,
   Minus,
   Plus,
-  Rectangle,
-  Square,
-  TextT,
 } from "@phosphor-icons/react";
+import { z } from "zod";
 // import * as Tabs from "@radix-ui/react-tabs";
+import { NodeIcon } from "@/components/node-icon";
 import clsx from "clsx";
 import React from "react";
+import { UIBindings } from "@/components/ui-bindings";
 
 const DEMO_STATE_MACHINE: StateMachine = {
   initial: "empty",
@@ -206,18 +202,6 @@ export default function Plugin() {
 
   return (
     <IconContext.Provider value={{ size: 16 }}>
-      {/* <Tabs.Root
-        defaultValue="states"
-        className="grid grid-rows-[auto_1fr] overflow-hidden h-screen"
-      >
-        <Tabs.List className="p-2 flex items-center gap-1 border-b border-border">
-          <TabTrigger value="states">States</TabTrigger>
-          <TabTrigger value="ui">UI</TabTrigger>
-        </Tabs.List>
-        <Tabs.Content
-          value="states"
-          className="data-[state=active]:grid grid-rows-[1fr_auto] overflow-hidden"
-        > */}
       <div className="grid grid-rows-[auto_1fr] overflow-hidden h-screen">
         <div className="h-10 pl-4 pr-2 items-center flex justify-between">
           <span className="font-bold">States</span>
@@ -453,14 +437,6 @@ export default function Plugin() {
               )}
             />
             <span className="font-bold">UI</span>
-            {/* {nodeBindings.length > 0 || selectedNode ? (
-              <IconButton
-                aria-label={isUISectionExpanded ? "Collapse" : "Expand"}
-                onClick={() => setIsUISectionExpanded(!isUISectionExpanded)}
-              >
-                {isUISectionExpanded ? <CaretUp /> : <CaretDown />}
-              </IconButton>
-            ) : null} */}
           </button>
 
           {isUISectionExpanded && (nodeBindings.length > 0 || selectedNode) ? (
@@ -477,228 +453,6 @@ export default function Plugin() {
           ) : null}
         </div>
       </div>
-      {/* </Tabs.Content>
-        <Tabs.Content value="ui">
-          <div className="p-2">
-            <UIBindings
-              currentState={currentState}
-              selectedNode={selectedNode}
-              nodeBindings={nodeBindings}
-              onNodeBindingsChange={setNodeBindings}
-            />
-          </div>
-        </Tabs.Content>
-      </Tabs.Root> */}
     </IconContext.Provider>
-  );
-}
-
-function UIBindings({
-  currentState,
-  selectedNode,
-  nodeBindings,
-  onNodeBindingsChange,
-}: {
-  currentState: string;
-  selectedNode: FigmaNode | null;
-  nodeBindings: FigmaNodeBindings;
-  onNodeBindingsChange: (value: FigmaNodeBindings) => void;
-}) {
-  return (
-    <div className="flex flex-col gap-2">
-      {nodeBindings.map(({ node, bindings }) => (
-        <div key={node.id} className="flex flex-col gap-2">
-          <div className="flex items-center gap-2">
-            <button
-              className={clsx(
-                "flex items-center gap-2 h-6 px-2 rounded flex-grow",
-                node.id === selectedNode?.id
-                  ? "bg-bg-selected"
-                  : "hover:bg-bg-secondary"
-              )}
-              onClick={() => {
-                parent.postMessage(
-                  {
-                    pluginMessage: {
-                      type: "SELECT_NODE",
-                      nodeId: node.id,
-                    },
-                    pluginId: "*",
-                  },
-                  "*"
-                );
-              }}
-            >
-              <NodeIcon type={node.type} />
-              <span>{node.name}</span>
-            </button>
-            <IconButton
-              aria-label="Add binding"
-              disabled={bindings.some(
-                (binding) => binding.property === "visibility"
-              )}
-              onClick={() => {
-                onNodeBindingsChange([
-                  ...nodeBindings,
-                  {
-                    node,
-                    bindings: [
-                      {
-                        property: "visibility",
-                        expression: "currentState === ",
-                      },
-                    ],
-                  },
-                ]);
-              }}
-            >
-              <Plus />
-            </IconButton>
-          </div>
-          <div className="flex flex-col gap-2 pl-8">
-            {bindings.map((binding) => (
-              <div
-                key={binding.property}
-                className="items-start gap-2 grid grid-cols-[100px_1fr_auto]"
-              >
-                <Select value={binding.property} onChange={() => {}}>
-                  <option value="visibility">Visibility</option>
-                </Select>
-                <ExpressionInput
-                  expression={binding.expression}
-                  scope={{ currentState }}
-                  onExpressionChange={(expression) => {
-                    // Update the node bindings when an expression changes
-                    onNodeBindingsChange(
-                      nodeBindings.map((b) => {
-                        // Find the node that contains the binding we're updating
-                        if (b.node.id === node.id) {
-                          return {
-                            ...b, // Keep all other node properties
-                            bindings: b.bindings.map((item) => {
-                              // Find the specific binding we're updating by property name
-                              if (item.property === binding.property) {
-                                return {
-                                  ...item, // Keep all other binding properties
-                                  expression, // Update the expression with the new value
-                                };
-                              }
-                              return item; // Return other bindings unchanged
-                            }),
-                          };
-                        }
-                        return b; // Return other nodes unchanged
-                      })
-                    );
-                  }}
-                />
-                <IconButton
-                  aria-label="Remove binding"
-                  onClick={() => {
-                    onNodeBindingsChange(
-                      nodeBindings
-                        .map((b) => {
-                          if (b.node.id === node.id) {
-                            // Keep the node but filter out the specific binding
-                            return {
-                              ...b,
-                              bindings: b.bindings.filter(
-                                (item) => item.property !== binding.property
-                              ),
-                            };
-                          }
-                          return b; // Return other nodes unchanged
-                        })
-                        .filter((b) => b.bindings.length > 0) // Remove nodes with no bindings left
-                    );
-                  }}
-                >
-                  <Minus />
-                </IconButton>
-              </div>
-            ))}
-          </div>
-        </div>
-      ))}
-      {selectedNode &&
-      !nodeBindings.find((b) => b.node.id === selectedNode.id) ? (
-        <div className="flex items-center gap-2">
-          <button className="flex items-center gap-2 h-6 px-2 rounded flex-grow bg-bg-selected">
-            <NodeIcon type={selectedNode.type} />
-            <span className="italic">{selectedNode.name}</span>
-          </button>
-          <IconButton
-            aria-label="Add binding"
-            onClick={() => {
-              onNodeBindingsChange([
-                ...nodeBindings,
-                {
-                  node: selectedNode,
-                  bindings: [
-                    {
-                      property: "visibility",
-                      expression: "currentState === ",
-                    },
-                  ],
-                },
-              ]);
-            }}
-          >
-            <Plus />
-          </IconButton>
-        </div>
-      ) : null}
-    </div>
-  );
-}
-
-function NodeIcon({ type }: { type: string }) {
-  switch (type) {
-    case "TEXT":
-      return <TextT />;
-
-    case "ELLIPSE":
-      return <Circle />;
-
-    case "RECTANGLE":
-      return <Rectangle />;
-
-    case "VECTOR":
-      return <BezierCurve />;
-
-    case "LINE":
-      return <LineSegment />;
-
-    default:
-      return <Square />;
-  }
-}
-
-function ExpressionInput({
-  expression,
-  scope,
-  onExpressionChange,
-}: {
-  expression: string;
-  scope: Record<string, any>;
-  onExpressionChange: (expression: string) => void;
-}) {
-  const value = React.useMemo(() => {
-    return evaluateExpression(expression, scope);
-  }, [expression, scope]);
-
-  return (
-    <div className="flex flex-col gap-1">
-      <input
-        type="text"
-        placeholder="Enter an expression"
-        className="w-full font-mono bg-bg-secondary rounded px-2 h-6 outline-none hover:ring-1 hover:ring-inset hover:ring-border focus:ring-1 focus:ring-inset focus:ring-border-selected placeholder:text-text-secondary"
-        value={expression}
-        onChange={(e) => onExpressionChange(e.target.value)}
-      />
-      <div className="text-text-secondary text-sm font-mono">
-        {value === undefined ? "undefined" : JSON.stringify(value)}
-      </div>
-    </div>
   );
 }
