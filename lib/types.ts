@@ -16,7 +16,9 @@ export const StateValueSchema = z.object({
 
 export type StateValue = z.infer<typeof StateValueSchema>;
 
-export type StateMachine = {
-  initial: string;
-  states: Array<[string, StateValue]>;
-};
+export const StateMachineSchema = z.object({
+  initial: z.string(),
+  states: z.array(z.tuple([z.string(), StateValueSchema])),
+});
+
+export type StateMachine = z.infer<typeof StateMachineSchema>;

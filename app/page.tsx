@@ -5,7 +5,8 @@ import { State } from "@/components/state";
 import { StateEditor } from "@/components/state-editor";
 import { UnresolvedState } from "@/components/unresolved-state";
 import { parseEventValue } from "@/lib/parse-event-value";
-import { StateMachine, StateValue } from "@/lib/types";
+import { StateMachine, StateMachineSchema, StateValue } from "@/lib/types";
+import { useRootPluginData } from "@/lib/use-plugin-data";
 import { useVariable } from "@/lib/use-variable";
 import { ArrowUUpLeft, CaretDown, Plus } from "@phosphor-icons/react";
 import React from "react";
@@ -50,8 +51,11 @@ const DEMO_STATE_MACHINE: StateMachine = {
 };
 
 export default function Plugin() {
-  const [stateMachine, setStateMachine] =
-    React.useState<StateMachine>(DEMO_STATE_MACHINE);
+  const [stateMachine, setStateMachine] = useRootPluginData({
+    key: "stateMachine",
+    schema: StateMachineSchema,
+    defaultValue: DEMO_STATE_MACHINE,
+  });
   const [currentState, setCurrentState] = useVariable(
     "currentState",
     "STRING",
