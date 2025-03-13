@@ -142,6 +142,24 @@ export default function Plugin() {
       const message = event.data.pluginMessage;
       if (message.type === "SELECTED_NODE") {
         setSelectedNode(message.node);
+
+        // If we have a selected node and it exists in our node bindings, update its name
+        if (message.node) {
+          setNodeBindings((prev) => {
+            return prev.map((binding) => {
+              if (binding.node.id === message.node.id) {
+                return {
+                  ...binding,
+                  node: {
+                    ...binding.node,
+                    name: message.node.name,
+                  },
+                };
+              }
+              return binding;
+            });
+          });
+        }
       }
     };
 
