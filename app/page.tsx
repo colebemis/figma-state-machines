@@ -105,7 +105,7 @@ export default function Plugin() {
   const [nextState, setNextState] = React.useState<string | null>(null);
   const [isAddingNewState, setIsAddingNewState] = React.useState(false);
   const [selectedNode, setSelectedNode] = React.useState<FigmaNode | null>(
-    null
+    null,
   );
 
   React.useEffect(() => {
@@ -130,7 +130,7 @@ export default function Plugin() {
                   node.visible = visible;
                 }
               },
-              { nodeId: nodeBinding.node.id, visible: value }
+              { nodeId: nodeBinding.node.id, visible: value },
             );
         }
       }
@@ -171,7 +171,7 @@ export default function Plugin() {
         },
         pluginId: "*",
       },
-      "*"
+      "*",
     );
   }, []);
 
@@ -304,7 +304,7 @@ export default function Plugin() {
                           const updatedEvents = { ...stateValue.on };
                           Object.keys(updatedEvents).forEach((eventName) => {
                             const eventValue = parseEventValue(
-                              updatedEvents[eventName]
+                              updatedEvents[eventName],
                             );
                             if (eventValue.target === state) {
                               // Use shorthand if there are no actions
@@ -442,7 +442,7 @@ export default function Plugin() {
               {
                 "text-text-secondary":
                   nodeBindings.length === 0 && !selectedNode,
-              }
+              },
             )}
             onClick={() => setIsUISectionExpanded(!isUISectionExpanded)}
           >
@@ -452,7 +452,7 @@ export default function Plugin() {
               className={clsx(
                 "absolute left-1 text-text-secondary group-hover:text-text-primary",
                 isUISectionExpanded &&
-                  "group-hover:opacity-100 opacity-0 rotate-90"
+                  "group-hover:opacity-100 opacity-0 rotate-90",
               )}
             />
             <span className="font-bold">UI</span>

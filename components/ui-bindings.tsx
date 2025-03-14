@@ -29,7 +29,7 @@ export function UIBindings({
                 "flex items-center gap-2 h-6 px-2 rounded flex-grow",
                 node.id === selectedNode?.id
                   ? "bg-bg-selected"
-                  : "hover:bg-bg-secondary"
+                  : "hover:bg-bg-secondary",
               )}
               onClick={() => {
                 parent.postMessage(
@@ -40,7 +40,7 @@ export function UIBindings({
                     },
                     pluginId: "*",
                   },
-                  "*"
+                  "*",
                 );
               }}
             >
@@ -50,7 +50,7 @@ export function UIBindings({
             <IconButton
               aria-label="Add binding"
               disabled={bindings.some(
-                (binding) => binding.property === "visibility"
+                (binding) => binding.property === "visibility",
               )}
               onClick={() => {
                 onNodeBindingsChange([
@@ -103,7 +103,7 @@ export function UIBindings({
                           };
                         }
                         return b; // Return other nodes unchanged
-                      })
+                      }),
                     );
                   }}
                 />
@@ -118,13 +118,13 @@ export function UIBindings({
                             return {
                               ...b,
                               bindings: b.bindings.filter(
-                                (item) => item.property !== binding.property
+                                (item) => item.property !== binding.property,
                               ),
                             };
                           }
                           return b; // Return other nodes unchanged
                         })
-                        .filter((b) => b.bindings.length > 0) // Remove nodes with no bindings left
+                        .filter((b) => b.bindings.length > 0), // Remove nodes with no bindings left
                     );
                   }}
                 >

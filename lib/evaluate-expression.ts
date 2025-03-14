@@ -1,6 +1,6 @@
 export function evaluateExpression(
   expression: string,
-  scope: Record<string, any>
+  scope: Record<string, any>,
 ) {
   try {
     const fn = new Function(...Object.keys(scope), `return ${expression}`);

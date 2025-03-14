@@ -25,7 +25,7 @@ export function useRootPluginData<T>({
         async (figma, { key }) => {
           return figma.root.getPluginData(key);
         },
-        { key }
+        { key },
       );
 
       if (!storedValue) {
@@ -55,10 +55,10 @@ export function useRootPluginData<T>({
         async (figma, { key, value }) => {
           figma.root.setPluginData(key, JSON.stringify(value));
         },
-        { key, value: newValue }
+        { key, value: newValue },
       );
     },
-    [key]
+    [key],
   );
 
   return [value, setValue] as const;

@@ -37,7 +37,7 @@ export function StateEditor({
       ? yamlStringify({
           on: events,
         })
-      : ""
+      : "",
   );
 
   const placeholder = `on:
@@ -73,7 +73,7 @@ export function StateEditor({
       onSave(newStateName, stateValue);
     } catch (error) {
       setError(
-        error instanceof Error ? error.message : "An unknown error occurred"
+        error instanceof Error ? error.message : "An unknown error occurred",
       );
     }
   };
@@ -143,7 +143,7 @@ export function StateEditor({
               const form = event.currentTarget.form;
               if (form)
                 form.dispatchEvent(
-                  new Event("submit", { cancelable: true, bubbles: true })
+                  new Event("submit", { cancelable: true, bubbles: true }),
                 );
             }
           }}

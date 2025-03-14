@@ -72,7 +72,7 @@ export function State({
       className={clsx(
         "rounded relative group",
         current ? "bg-bg-selected" : "hover:bg-bg-secondary",
-        hover && "bg-bg-secondary"
+        hover && "bg-bg-secondary",
       )}
     >
       <div className="px-2 h-9  flex items-center gap-2 rounded">
@@ -112,7 +112,7 @@ export function State({
                     "flex items-center gap-1",
                     unresolvedStates.includes(parseEventValue(value).target)
                       ? "text-text-secondary"
-                      : ""
+                      : "",
                   )}
                 >
                   <button
@@ -129,7 +129,7 @@ export function State({
                         ? "after:absolute after:inset-0 after:border after:border-dashed after:border-border after:rounded-full after:pointer-events-none"
                         : current
                         ? "bg-bg-brand text-text-onbrand active:bg-bg-brand-pressed hover:ring-1 hover:ring-border-selected-strong hover:ring-inset"
-                        : "bg-bg-secondary"
+                        : "bg-bg-secondary",
                     )}
                   >
                     {event}

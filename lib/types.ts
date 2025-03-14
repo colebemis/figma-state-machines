@@ -37,7 +37,7 @@ export const FigmaNodeBindingSchema = z.object({
     z.object({
       property: z.enum(["visibility"]),
       expression: z.string(),
-    })
+    }),
   ),
 });
 

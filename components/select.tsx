@@ -17,7 +17,7 @@ export function Select({
         {...props}
         className={clsx(
           "bg-[transparent] ring-1 ring-inset ring-border rounded pr-6 py-1 outline-none focus:ring-border-selected appearance-none w-full",
-          icon ? "pl-6" : "pl-2"
+          icon ? "pl-6" : "pl-2",
         )}
       />
       <CaretDown

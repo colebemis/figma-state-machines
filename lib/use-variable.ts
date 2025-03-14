@@ -18,7 +18,7 @@ type VariableResolvedDataType = keyof VariableTypeMap;
 export function useVariable<T extends VariableResolvedDataType>(
   variableName: string,
   variableType: T,
-  defaultValue: VariableTypeMap[T]
+  defaultValue: VariableTypeMap[T],
 ) {
   const variableCollectionIdRef = React.useRef<string | null>(null);
   const variableIdRef = React.useRef<string | null>(null);
@@ -71,7 +71,7 @@ export function useVariable<T extends VariableResolvedDataType>(
         variableCollectionId: variableCollectionIdRef.current,
         variableId: variableIdRef.current,
         value,
-      }
+      },
     );
   }, []);
 
@@ -85,7 +85,7 @@ export function useVariable<T extends VariableResolvedDataType>(
       // the React state will not update until the plugin is refreshed.
       // There is currently no way to listen for changes to the variable value in Figma.
     },
-    [_setValue, setVariableValue]
+    [_setValue, setVariableValue],
   );
 
   return [value, setValue] as const;
@@ -101,7 +101,7 @@ async function initVariableCollection({
     async (figma, { collectionName }) => {
       // Retrieve the previous variable collection id from storage
       const variableCollectionId = figma.root.getPluginData(
-        "variable_collection_id"
+        "variable_collection_id",
       );
 
       if (variableCollectionId) {
@@ -109,7 +109,7 @@ async function initVariableCollection({
           // Check if the variable collection still exists
           const variableCollection =
             await figma.variables.getVariableCollectionByIdAsync(
-              variableCollectionId
+              variableCollectionId,
             );
 
           // If the collection exists and has the name we expect, return the ID
@@ -128,13 +128,13 @@ async function initVariableCollection({
       // Store the variable collection ID
       figma.root.setPluginData(
         "variable_collection_id",
-        newVariableCollection.id
+        newVariableCollection.id,
       );
 
       // Return the new variable collection ID
       return { variableCollectionId: newVariableCollection.id };
     },
-    { collectionName }
+    { collectionName },
   );
 }
 
@@ -156,7 +156,7 @@ async function initVariable<T extends VariableResolvedDataType>({
   return await figmaAPI.run(
     (
       figma,
-      { variableName, variableCollectionId, variableType, defaultValue }
+      { variableName, variableCollectionId, variableType, defaultValue },
     ) => {
       // Get the variable collection by ID
       const variableCollection =
@@ -172,7 +172,7 @@ async function initVariable<T extends VariableResolvedDataType>({
       const variable = variables.find(
         (variable) =>
           variable.variableCollectionId === variableCollectionId &&
-          variable.name === variableName
+          variable.name === variableName,
       );
 
       // If the variable already exists, return its ID and current value
@@ -189,13 +189,13 @@ async function initVariable<T extends VariableResolvedDataType>({
       const newVariable = figma.variables.createVariable(
         variableName,
         variableCollectionId,
-        variableType
+        variableType,
       );
 
       // Set the default value for the variable in the default mode
       newVariable.setValueForMode(
         variableCollection.defaultModeId,
-        defaultValue as any // Safe because we've constrained T to VariableResolvedDataType
+        defaultValue as any, // Safe because we've constrained T to VariableResolvedDataType
       );
 
       // Return the new variable's ID and value
@@ -206,6 +206,6 @@ async function initVariable<T extends VariableResolvedDataType>({
         ] as VariableTypeMap[T],
       };
     },
-    { variableName, variableCollectionId, variableType, defaultValue }
+    { variableName, variableCollectionId, variableType, defaultValue },
   );
 }
