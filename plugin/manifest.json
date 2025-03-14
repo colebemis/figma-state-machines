@@ -1,5 +1,5 @@
 {
-  "name": "State machines",
+  "name": "State Machines",
   "id": "figma-state-machines",
   "api": "1.0.0",
   "main": "dist/code.js",

@@ -10,27 +10,23 @@ import { figmaAPI } from "@/lib/figma-api";
 import { parseEventValue } from "@/lib/parse-event-value";
 import {
   FigmaNode,
-  FigmaNodeBindings,
   FigmaNodeBindingsSchema,
   StateMachine,
   StateMachineSchema,
   StateValue,
 } from "@/lib/types";
 import { useRootPluginData } from "@/lib/use-plugin-data";
-import { useVariable } from "@/lib/use-variable";
 import {
   ArrowUUpLeft,
   CaretRight,
   IconContext,
-  Minus,
   Plus,
 } from "@phosphor-icons/react";
 import { z } from "zod";
 // import * as Tabs from "@radix-ui/react-tabs";
-import { NodeIcon } from "@/components/node-icon";
+import { UIBindings } from "@/components/ui-bindings";
 import clsx from "clsx";
 import React from "react";
-import { UIBindings } from "@/components/ui-bindings";
 
 const DEMO_STATE_MACHINE: StateMachine = {
   initial: "empty",
@@ -426,14 +422,14 @@ export default function Plugin() {
             )}
           </div>
         </div>
-        <div className="border-t border-border">
+        {/* <div className="border-t border-border">
           <div className="pl-4 pr-2 h-10 flex items-center justify-between text-text-secondary">
             <span className="font-bold">Context</span>
             <IconButton aria-label="Add context value">
               <Plus />
             </IconButton>
           </div>
-        </div>
+        </div> */}
         <div className="border-t border-border max-h-[50vh] grid grid-rows-[auto_1fr]">
           <button
             disabled={nodeBindings.length === 0 && !selectedNode}
