@@ -1,9 +1,10 @@
 {
   "name": "State Machines",
-  "id": "figma-state-machines",
+  "id": "1482607818024168493",
   "api": "1.0.0",
   "main": "dist/code.js",
   "enableProposedApi": false,
+  "documentAccess": "dynamic-page",
   "editorType": ["figma", "figjam"],
   "networkAccess": {
     "allowedDomains": ["*"],

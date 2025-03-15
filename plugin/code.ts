@@ -56,7 +56,7 @@ figma.ui.onmessage = async (message, props) => {
 
   switch (message.type) {
     case "SELECT_NODE": {
-      const node = figma.getNodeById(message.nodeId);
+      const node = await figma.getNodeByIdAsync(message.nodeId);
       if (node && node.type !== "DOCUMENT" && node.type !== "PAGE") {
         figma.currentPage.selection = [node as SceneNode];
       }
