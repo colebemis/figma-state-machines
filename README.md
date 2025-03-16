@@ -1,3 +1,3 @@
 # Figma State Machines Plugin
 
-Design with state machines in Figma
+Create state machines and integrate them directly into your Figma designs
