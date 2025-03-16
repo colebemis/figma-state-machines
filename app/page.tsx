@@ -152,6 +152,7 @@ export default function Plugin() {
             });
             figmaAPI.run(
               async (figma, { nodeId, visible }) => {
+                console.log("[Figma API] Getting node:", nodeId);
                 const node = await figma.getNodeByIdAsync(nodeId);
                 if (node && node.type !== "DOCUMENT" && node.type !== "PAGE") {
                   node.visible = visible;
