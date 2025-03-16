@@ -63,7 +63,6 @@ figma.ui.onmessage = async (message, props) => {
       break;
     }
     case "EVAL": {
-      console.log("EVAL", message);
       const fn = eval.call(null, message.code);
 
       try {
