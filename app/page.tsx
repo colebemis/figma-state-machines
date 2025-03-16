@@ -104,26 +104,65 @@ export default function Plugin() {
     null,
   );
 
+  // Evaluate the state machine and update the UI
   React.useEffect(() => {
+    console.log("[State Update] Current state:", currentState);
+    console.log("[Node Bindings] Processing bindings:", nodeBindings);
+
     for (const nodeBinding of nodeBindings) {
+      console.log(
+        "[Node Binding] Processing node:",
+        nodeBinding.node.name,
+        nodeBinding.node.id,
+      );
+
       for (const binding of nodeBinding.bindings) {
+        console.log(
+          "[Binding] Evaluating expression:",
+          binding.expression,
+          "for property:",
+          binding.property,
+        );
+
         const value = evaluateExpression(binding.expression, {
           state: currentState,
         });
 
-        // Skip if the expression is undefined
-        if (value === undefined) continue;
+        console.log("[Binding] Evaluated value:", value);
 
-        console.log(nodeBinding.node.id, binding.property, value);
+        // Skip if the expression is undefined
+        if (value === undefined) {
+          console.log("[Binding] Skipping undefined value");
+          continue;
+        }
+
         switch (binding.property) {
           case "visibility":
-            if (typeof value !== "boolean") continue;
+            if (typeof value !== "boolean") {
+              console.log(
+                "[Binding] Invalid visibility value type:",
+                typeof value,
+              );
+              continue;
+            }
 
+            console.log("[Figma API] Setting visibility:", {
+              nodeId: nodeBinding.node.id,
+              visible: value,
+            });
             figmaAPI.run(
               async (figma, { nodeId, visible }) => {
                 const node = await figma.getNodeByIdAsync(nodeId);
                 if (node && node.type !== "DOCUMENT" && node.type !== "PAGE") {
                   node.visible = visible;
+                  console.log(
+                    "[Figma API] Successfully updated node visibility",
+                  );
+                } else {
+                  console.log(
+                    "[Figma API] Failed to update node visibility - invalid node:",
+                    node?.type,
+                  );
                 }
               },
               { nodeId: nodeBinding.node.id, visible: value },
@@ -136,7 +175,10 @@ export default function Plugin() {
   React.useEffect(() => {
     window.onmessage = (event) => {
       const message = event.data.pluginMessage;
+      console.log("[Plugin Message] Received:", message);
+
       if (message.type === "SELECTED_NODE") {
+        console.log("[Selection] Node selected:", message.node);
         setSelectedNode(message.node);
 
         // If we have a selected node and it exists in our node bindings, update its name
