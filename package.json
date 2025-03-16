@@ -38,7 +38,7 @@
     "concurrently": "^8.2.0"
   },
   "config": {
-    "siteURL": "https://figma-state-machines.vercel.app/"
+    "siteURL": "https://figma-state-machines.vercel.app"
   },
   "prettier": {
     "trailingComma": "all"
