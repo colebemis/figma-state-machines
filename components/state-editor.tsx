@@ -33,7 +33,7 @@ export function StateEditor({
   const [error, setError] = React.useState<string | null>(null);
   const [yamlStr, setYamlStr] = React.useState(() =>
     // Convert object to yaml string
-    events
+    events.length
       ? yamlStringify({
           on: events,
         })
@@ -41,9 +41,7 @@ export function StateEditor({
   );
 
   const placeholder = `on:
-  CLICK:
-    target: active
-    actions: [activate]`;
+  EVENT: target`;
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -83,7 +81,7 @@ export function StateEditor({
       <div className="border-b border-border">
         <div className="flex relative h-9">
           {unreachable ? (
-            <WarningDiamond className="text-text-warning absolute left-2 top-2.5" />
+            <WarningDiamond className="text-text-danger absolute left-2 top-2.5" />
           ) : (
             <div className="flex relative left-2 top-2.5 size-4">
               {initial ? <DotOutline className="absolute" /> : null}

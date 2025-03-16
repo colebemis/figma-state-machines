@@ -77,7 +77,7 @@ export function State({
     >
       <div className="px-2 h-9  flex items-center gap-2 rounded">
         {unreachable ? (
-          <WarningDiamond className="text-text-warning" />
+          <WarningDiamond className="text-text-danger" />
         ) : (
           <div className="flex relative">
             {initial ? <DotOutline className="absolute" /> : null}

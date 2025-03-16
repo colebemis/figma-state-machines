@@ -28,44 +28,49 @@ import { UIBindings } from "@/components/ui-bindings";
 import clsx from "clsx";
 import React from "react";
 
-const DEMO_STATE_MACHINE: StateMachine = {
-  initial: "empty",
-  states: [
-    [
-      "empty",
-      {
-        on: {
-          CHANGE: "validating",
-        },
-      },
-    ],
-    [
-      "validating",
-      {
-        on: {
-          VALID: "valid",
-          INVALID: "invalid",
-        },
-      },
-    ],
-    [
-      "valid",
-      {
-        on: {
-          CHANGE: "validating",
-        },
-      },
-    ],
-    [
-      "invalid",
-      {
-        on: {
-          CHANGE: "validating",
-        },
-      },
-    ],
-  ],
+const INITIAL_STATE_MACHINE: StateMachine = {
+  initial: "",
+  states: [],
 };
+
+// const DEMO_STATE_MACHINE: StateMachine = {
+//   initial: "empty",
+//   states: [
+//     [
+//       "empty",
+//       {
+//         on: {
+//           CHANGE: "validating",
+//         },
+//       },
+//     ],
+//     [
+//       "validating",
+//       {
+//         on: {
+//           VALID: "valid",
+//           INVALID: "invalid",
+//         },
+//       },
+//     ],
+//     [
+//       "valid",
+//       {
+//         on: {
+//           CHANGE: "validating",
+//         },
+//       },
+//     ],
+//     [
+//       "invalid",
+//       {
+//         on: {
+//           CHANGE: "validating",
+//         },
+//       },
+//     ],
+//   ],
+// };
 
 // function TabTrigger(props: Tabs.TabsTriggerProps) {
 //   return (
@@ -80,7 +85,7 @@ export default function Plugin() {
   const [stateMachine, setStateMachine] = useRootPluginData({
     key: "stateMachine",
     schema: StateMachineSchema,
-    defaultValue: DEMO_STATE_MACHINE,
+    defaultValue: INITIAL_STATE_MACHINE,
   });
   const [nodeBindings, setNodeBindings] = useRootPluginData({
     key: "nodeBindings",
